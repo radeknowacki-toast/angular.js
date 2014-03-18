@@ -400,7 +400,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
                         parent.removeChild(correspondingCommentElement);
                     }
                   });
-                  $scope.$on('$destroy', function(){
+                  childScope.$on('$destroy', function(){
                     clone.off('$attach');
                     clone.off('$detach');
                   });
