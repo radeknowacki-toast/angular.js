@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.7.9-local+sha.71873ce46
+ * @license AngularJS v1.7.9-local+sha.5b5b2ffcd
  * (c) 2010-2018 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -17,7 +17,7 @@
 
 
 angular.module('ngCookies', ['ng']).
-  info({ angularVersion: '1.7.9-local+sha.71873ce46' }).
+  info({ angularVersion: '1.7.9-local+sha.5b5b2ffcd' }).
   /**
    * @ngdoc provider
    * @name $cookiesProvider

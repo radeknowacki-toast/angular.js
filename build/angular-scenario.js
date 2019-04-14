@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.7.9-local+sha.71873ce46
+ * @license AngularJS v1.7.9-local+sha.5b5b2ffcd
  * (c) 2010-2017 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -89,7 +89,7 @@ function isValidObjectMaxDepth(maxDepth) {
 function minErr(module, ErrorConstructor) {
   ErrorConstructor = ErrorConstructor || Error;
 
-  var url = 'https://errors.angularjs.org/1.7.9-local+sha.71873ce46/';
+  var url = 'https://errors.angularjs.org/1.7.9-local+sha.5b5b2ffcd/';
   var regex = url.replace('.', '\\.') + '[\\s\\S]*';
   var errRegExp = new RegExp(regex, 'g');
 
@@ -2807,7 +2807,7 @@ function toDebugString(obj, maxDepth) {
 var version = {
   // These placeholder strings will be replaced by grunt's `build` task.
   // They need to be double- or single-quoted.
-  full: '1.7.9-local+sha.71873ce46',
+  full: '1.7.9-local+sha.5b5b2ffcd',
   major: 1,
   minor: 7,
   dot: 9,
@@ -2957,7 +2957,7 @@ function publishExternalAPI(angular) {
       });
     }
   ])
-  .info({ angularVersion: '1.7.9-local+sha.71873ce46' });
+  .info({ angularVersion: '1.7.9-local+sha.5b5b2ffcd' });
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -8471,7 +8471,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
         controllerAs: identifierForController(options.controller) || options.controllerAs || '$ctrl',
         template: makeInjectable(template),
         templateUrl: makeInjectable(options.templateUrl),
-        resolveController: options.resolveController || null,
+        controllerProvider: options.controllerProvider || null,
         transclude: options.transclude,
         scope: {},
         bindToController: options.bindings || {},
@@ -8479,8 +8479,8 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
         require: options.require
       };
 
-      if (ddo.resolveController && !ddo.templateUrl) {
-        throw $compileMinErr('rslvCtrl', 'resolveController can only be used in conjunction with templateUrl!');
+      if (ddo.controllerProvider && !ddo.templateUrl) {
+        throw $compileMinErr('rslvCtrl', 'controllerProvider can only be used in conjunction with templateUrl!');
       }
 
       // Copy annotations (starting with $) over to the DDO
@@ -10343,13 +10343,13 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
       $q.all([
         $templateRequest(templateUrl),
         $q.when(
-          originalDirective.resolveController &&
-          originalDirective.resolveController()
+          originalDirective.controllerProvider &&
+          originalDirective.controllerProvider()
         )
       ]).then(function(res) {
           if (res[1]) {
-            delete originalDirective.resolveControlle;
-            originalDirective.controller = res[1].default;
+            delete originalDirective.controllerProvider;
+            originalDirective.controller = res[1];
           }
           var content = res[0];
           var compileNode, tempTemplateAttrs, $template, childBoundTranscludeFn;

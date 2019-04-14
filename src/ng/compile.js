@@ -1311,7 +1311,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
         controllerAs: identifierForController(options.controller) || options.controllerAs || '$ctrl',
         template: makeInjectable(template),
         templateUrl: makeInjectable(options.templateUrl),
-        resolveController: options.resolveController || null,
+        controllerProvider: options.controllerProvider || null,
         transclude: options.transclude,
         scope: {},
         bindToController: options.bindings || {},
@@ -1319,8 +1319,8 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
         require: options.require
       };
 
-      if (ddo.resolveController && !ddo.templateUrl) {
-        throw $compileMinErr('rslvCtrl', 'resolveController can only be used in conjunction with templateUrl!');
+      if (ddo.controllerProvider && !ddo.templateUrl) {
+        throw $compileMinErr('rslvCtrl', 'controllerProvider can only be used in conjunction with templateUrl!');
       }
 
       // Copy annotations (starting with $) over to the DDO
@@ -3183,13 +3183,13 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
       $q.all([
         $templateRequest(templateUrl),
         $q.when(
-          originalDirective.resolveController &&
-          originalDirective.resolveController()
+          originalDirective.controllerProvider &&
+          originalDirective.controllerProvider()
         )
       ]).then(function(res) {
           if (res[1]) {
-            delete originalDirective.resolveControlle;
-            originalDirective.controller = res[1].default;
+            delete originalDirective.controllerProvider;
+            originalDirective.controller = res[1];
           }
           var content = res[0];
           var compileNode, tempTemplateAttrs, $template, childBoundTranscludeFn;
