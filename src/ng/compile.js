@@ -1311,12 +1311,17 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
         controllerAs: identifierForController(options.controller) || options.controllerAs || '$ctrl',
         template: makeInjectable(template),
         templateUrl: makeInjectable(options.templateUrl),
+        resolveController: options.resolveController || null,
         transclude: options.transclude,
         scope: {},
         bindToController: options.bindings || {},
         restrict: 'E',
         require: options.require
       };
+
+      if (ddo.resolveController && !ddo.templateUrl) {
+        throw $compileMinErr('rslvCtrl', 'resolveController can only be used in conjunction with templateUrl!');
+      }
 
       // Copy annotations (starting with $) over to the DDO
       forEach(options, function(val, key) {
@@ -2707,7 +2712,8 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                 newScopeDirective: (newScopeDirective !== directive) && newScopeDirective,
                 newIsolateScopeDirective: newIsolateScopeDirective,
                 templateDirective: templateDirective,
-                nonTlbTranscludeDirective: nonTlbTranscludeDirective
+                nonTlbTranscludeDirective: nonTlbTranscludeDirective,
+                originalDirective: directive
               });
           ii = directives.length;
         } else if (directive.compile) {
@@ -3173,8 +3179,19 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
 
       $compileNode.empty();
 
-      $templateRequest(templateUrl)
-        .then(function(content) {
+      var originalDirective = previousCompileContext.originalDirective;
+      $q.all([
+        $templateRequest(templateUrl),
+        $q.when(
+          originalDirective.resolveController &&
+          originalDirective.resolveController()
+        )
+      ]).then(function(res) {
+          if (res[1]) {
+            delete originalDirective.resolveControlle;
+            originalDirective.controller = res[1].default;
+          }
+          var content = res[0];
           var compileNode, tempTemplateAttrs, $template, childBoundTranscludeFn;
 
           content = denormalizeTemplate(content);
