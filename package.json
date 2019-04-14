@@ -20,7 +20,6 @@
     "test-i18n-ucd": "jasmine-node i18n/ucd/spec",
     "grunt": "grunt"
   },
-  "main": "build/angular.js",
   "devDependencies": {
     "angular-benchpress": "0.x.x",
     "benchmark": "1.x.x",
