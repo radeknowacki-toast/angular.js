@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.7.9-local+sha.5b5b2ffcd
+ * @license AngularJS v1.7.9-local+sha.737d87184
  * (c) 2010-2017 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -89,7 +89,7 @@ function isValidObjectMaxDepth(maxDepth) {
 function minErr(module, ErrorConstructor) {
   ErrorConstructor = ErrorConstructor || Error;
 
-  var url = 'https://errors.angularjs.org/1.7.9-local+sha.5b5b2ffcd/';
+  var url = 'https://errors.angularjs.org/1.7.9-local+sha.737d87184/';
   var regex = url.replace('.', '\\.') + '[\\s\\S]*';
   var errRegExp = new RegExp(regex, 'g');
 
@@ -2807,7 +2807,7 @@ function toDebugString(obj, maxDepth) {
 var version = {
   // These placeholder strings will be replaced by grunt's `build` task.
   // They need to be double- or single-quoted.
-  full: '1.7.9-local+sha.5b5b2ffcd',
+  full: '1.7.9-local+sha.737d87184',
   major: 1,
   minor: 7,
   dot: 9,
@@ -2957,7 +2957,7 @@ function publishExternalAPI(angular) {
       });
     }
   ])
-  .info({ angularVersion: '1.7.9-local+sha.5b5b2ffcd' });
+  .info({ angularVersion: '1.7.9-local+sha.737d87184' });
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -8757,9 +8757,9 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
 
   this.$get = [
             '$injector', '$interpolate', '$exceptionHandler', '$templateRequest', '$parse',
-            '$controller', '$rootScope', '$sce', '$animate', '$$sanitizeUri',
+            '$controller', '$rootScope', '$sce', '$animate', '$$sanitizeUri', '$q',
     function($injector,   $interpolate,   $exceptionHandler,   $templateRequest,   $parse,
-             $controller,   $rootScope,   $sce,   $animate,   $$sanitizeUri) {
+             $controller,   $rootScope,   $sce,   $animate,   $$sanitizeUri, $q) {
 
     var SIMPLE_ATTR_NAME = /^\w/;
     var specialAttrHolder = window.document.createElement('div');
