@@ -125,8 +125,8 @@ and comments (M).
 
 The built-in AngularJS directives show in their documentation page which type of matching they support.
 
-The following demonstrates the various ways a directive that matches all 4 types
-(`myDir` in this case) can be referenced from within a template.
+The following demonstrates the various ways a directive (`myDir` in this case) that matches all
+4 types can be referenced from within a template.
 
 ```html
 <my-dir></my-dir>

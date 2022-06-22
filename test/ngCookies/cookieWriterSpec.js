@@ -132,6 +132,7 @@ describe('$$cookieWriter', function() {
 
 describe('cookie options', function() {
   var fakeDocument, $$cookieWriter;
+  var isUndefined = angular.isUndefined;
 
   function getLastCookieAssignment(key) {
     return fakeDocument[0].cookie
@@ -179,6 +180,16 @@ describe('cookie options', function() {
   it('should accept secure option', function() {
     $$cookieWriter('name', 'value', {secure: true});
     expect(getLastCookieAssignment('secure')).toBe(true);
+  });
+
+  it('should accept samesite option when value is lax', function() {
+    $$cookieWriter('name', 'value', {samesite: 'lax'});
+    expect(getLastCookieAssignment('samesite')).toBe('lax');
+  });
+
+  it('should accept samesite option when value is strict', function() {
+    $$cookieWriter('name', 'value', {samesite: 'strict'});
+    expect(getLastCookieAssignment('samesite')).toBe('strict');
   });
 
   it('should accept expires option on set', function() {

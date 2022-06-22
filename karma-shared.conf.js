@@ -23,12 +23,7 @@ module.exports = function(config, specificOptions) {
     // SauceLabs config for local development.
     sauceLabs: {
       testName: specificOptions.testName || 'AngularJS',
-      startConnect: true,
-      options: {
-        // We need selenium version +2.46 for Firefox 39 and the last selenium version for OS X is 2.45.
-        // TODO: Uncomment when there is a selenium 2.46 available for OS X.
-        // 'selenium-version': '2.46.0'
-      }
+      startConnect: true
     },
 
     // BrowserStack config for local development.
@@ -65,13 +60,11 @@ module.exports = function(config, specificOptions) {
       'SL_Safari-1': {
         base: 'SauceLabs',
         browserName: 'safari',
-        platform: 'OS X 10.12',
         version: 'latest-1'
       },
       'SL_Safari': {
         base: 'SauceLabs',
         browserName: 'safari',
-        platform: 'OS X 10.12',
         version: 'latest'
       },
       'SL_IE_9': {
@@ -104,34 +97,34 @@ module.exports = function(config, specificOptions) {
         platform: 'Windows 10',
         version: 'latest-1'
       },
-      'SL_iOS_10': {
+      'SL_iOS': {
         base: 'SauceLabs',
         browserName: 'iphone',
-        version: '10.3'
+        version: 'latest'
       },
-      'SL_iOS_11': {
+      'SL_iOS-1': {
         base: 'SauceLabs',
         browserName: 'iphone',
-        version: '11'
+        version: 'latest-1'
       },
 
       'BS_Chrome': {
         base: 'BrowserStack',
         browser: 'chrome',
         os: 'OS X',
-        os_version: 'Yosemite'
+        os_version: 'Sierra'
       },
       'BS_Safari': {
         base: 'BrowserStack',
         browser: 'safari',
         os: 'OS X',
-        os_version: 'Yosemite'
+        os_version: 'Sierra'
       },
       'BS_Firefox': {
         base: 'BrowserStack',
         browser: 'firefox',
         os: 'Windows',
-        os_version: '8'
+        os_version: '10'
       },
       'BS_IE_9': {
         base: 'BrowserStack',
@@ -190,6 +183,9 @@ module.exports = function(config, specificOptions) {
     config.sauceLabs.startConnect = false;
     config.sauceLabs.tunnelIdentifier = process.env.TRAVIS_JOB_NUMBER;
     config.sauceLabs.recordScreenshots = true;
+
+    // Try 'websocket' for a faster transmission first. Fallback to 'polling' if necessary.
+    config.transports = ['websocket', 'polling'];
 
     // Debug logging into a file, that we print out at the end of the build.
     config.loggers.push({

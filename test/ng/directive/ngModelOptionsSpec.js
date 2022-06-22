@@ -535,12 +535,46 @@ describe('ngModelOptions', function() {
 
           helper.changeInputValueTo('c');
           browserTrigger(helper.inputElm, 'mouseup');
-          // counter-intuitively `default` in `debounce` is a catch-all
-          expect($rootScope.name).toEqual('b');
-          $timeout.flush(10000);
+          // `default` in `debounce` only affects the event triggers that are not defined in updateOn
           expect($rootScope.name).toEqual('c');
         });
 
+
+        it('should use the value of * to debounce all unspecified events',
+          function() {
+          var inputElm = helper.compileInput(
+              '<input type="text" ng-model="name" name="alias" ' +
+                'ng-model-options="{' +
+                  'updateOn: \'default blur mouseup\', ' +
+                  'debounce: { default: 10000, blur: 5000, \'*\': 15000 }' +
+                '}"' +
+              '/>');
+
+          helper.changeInputValueTo('a');
+          expect($rootScope.name).toBeUndefined();
+          $timeout.flush(6000);
+          expect($rootScope.name).toBeUndefined();
+          $timeout.flush(4000);
+          expect($rootScope.name).toEqual('a');
+
+          helper.changeInputValueTo('b');
+          browserTrigger(inputElm, 'blur');
+          $timeout.flush(4000);
+          expect($rootScope.name).toEqual('a');
+          $timeout.flush(2000);
+          expect($rootScope.name).toEqual('b');
+
+          helper.changeInputValueTo('c');
+          browserTrigger(helper.inputElm, 'mouseup');
+          expect($rootScope.name).toEqual('b');
+          $timeout.flush(10000); // flush default
+          expect($rootScope.name).toEqual('b');
+          $timeout.flush(5000);
+          expect($rootScope.name).toEqual('c');
+        });
+
+          helper.changeInputValueTo('a');
+          expect($rootScope.name).toEqual('a');
 
         it('should trigger immediately for the event if not listed in the debounce list',
           function() {
@@ -582,6 +616,19 @@ describe('ngModelOptions', function() {
           expect($rootScope.checkbox).toBe(false);
         });
 
+          inputElm[0].checked = false;
+          browserTrigger(inputElm, 'click');
+          expect($rootScope.checkbox).toBeUndefined();
+          $timeout.flush(8000);
+          expect($rootScope.checkbox).toBeUndefined();
+          $timeout.flush(3000);
+          expect($rootScope.checkbox).toBe(true);
+          inputElm[0].checked = true;
+          browserTrigger(inputElm, 'click');
+          browserTrigger(inputElm, 'blur');
+          $timeout.flush(0);
+          expect($rootScope.checkbox).toBe(false);
+        });
 
         it('should allow selecting 0 for non-default debounce timeouts for each event on checkboxes', function() {
           var inputElm = helper.compileInput('<input type="checkbox" ng-model="checkbox" ' +
@@ -603,6 +650,11 @@ describe('ngModelOptions', function() {
           expect($rootScope.checkbox).toBe(false);
         });
 
+          helper.changeInputValueTo('a');
+          expect($rootScope.name).toEqual(undefined);
+          $rootScope.form.alias.$commitViewValue();
+          expect($rootScope.name).toEqual('a');
+        });
 
         it('should flush debounced events when calling $commitViewValue directly', function() {
           var inputElm = helper.compileInput(
@@ -672,6 +724,11 @@ describe('ngModelOptions', function() {
           expect($rootScope.name).toEqual(undefined);
         });
 
+          helper.changeInputValueTo('a');
+          $rootScope.$apply('name = \'b\'');
+          browserTrigger(inputElm, 'blur');
+          expect($rootScope.name).toBe('b');
+        });
 
         it('should handle model updates correctly even if rollbackViewValue is not invoked', function() {
           var inputElm = helper.compileInput(

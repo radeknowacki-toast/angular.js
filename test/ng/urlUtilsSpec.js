@@ -31,15 +31,34 @@ describe('urlUtils', function() {
       var parsed = urlResolve('/');
       expect(parsed.pathname).toBe('/');
     });
+
+    it('should return an IPv6 hostname wrapped in brackets', function() {
+      // Support: IE 9-11 only, Edge 16-17 only (fixed in 18 Preview)
+      // IE/Edge don't wrap IPv6 addresses' hostnames in square brackets
+      // when parsed out of an anchor element.
+      var parsed = urlResolve('http://[::1]/');
+      expect(parsed.hostname).toBe('[::1]');
+    });
+
+    it('should not put the domain in brackets for the hostname field', function() {
+      var parsed = urlResolve('https://google.com/');
+      expect(parsed.hostname).toBe('google.com');
+    });
   });
 
 
-  describe('urlIsSameOrigin', function() {
+  describe('urlIsSameOrigin and urlIsSameOriginAsBaseUrl', function() {
     it('should support various combinations of urls - both string and parsed',
       inject(function($document) {
         function expectIsSameOrigin(url, expectedValue) {
           expect(urlIsSameOrigin(url)).toBe(expectedValue);
           expect(urlIsSameOrigin(urlResolve(url))).toBe(expectedValue);
+
+          // urlIsSameOriginAsBaseUrl() should behave the same as urlIsSameOrigin() by default.
+          // Behavior when there is a non-default base URL or when the base URL changes dynamically
+          // is tested in the end-to-end tests in e2e/tests/base-tag.spec.js.
+          expect(urlIsSameOriginAsBaseUrl(url)).toBe(expectedValue);
+          expect(urlIsSameOriginAsBaseUrl(urlResolve(url))).toBe(expectedValue);
         }
 
         expectIsSameOrigin('path', true);

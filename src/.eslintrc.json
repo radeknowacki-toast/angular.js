@@ -28,8 +28,6 @@
     "REGEX_STRING_REGEXP" : false,
     "lowercase": false,
     "uppercase": false,
-    "manualLowercase": false,
-    "manualUppercase": false,
     "isArrayLike": false,
     "forEach": false,
     "forEachSorted": false,
@@ -161,6 +159,7 @@
     /* urlUtils.js */
     "urlResolve": false,
     "urlIsSameOrigin": false,
+    "urlIsSameOriginAsBaseUrl": false,
     "urlIsAllowedOriginFactory": false,
 
     /* ng/controller.js */
@@ -172,8 +171,14 @@
     /* ng/q.js */
     "markQExceptionHandled": false,
 
+    /* sce.js */
+    "SCE_CONTEXTS": false,
+
     /* ng/directive/directives.js */
     "ngDirective": false,
+
+    /* ng/directive/ngEventDirs.js */
+    "createEventDirective": false,
 
     /* ng/directive/input.js */
     "VALID_CLASS": false,

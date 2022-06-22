@@ -116,7 +116,6 @@ objects (or primitives) assigned to the scope become model properties. Any metho
 the scope are available in the template/view, and can be invoked via AngularJS expressions
 and `ng` event handler directives (e.g. {@link ng.directive:ngClick ngClick}).
 
-
 ## Simple Spicy Controller Example
 
 To illustrate further how Controller components work in AngularJS, let's create a little app with the

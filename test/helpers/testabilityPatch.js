@@ -67,6 +67,7 @@ afterEach(function() {
         } else {
           dump('LEAK', key, angular.toJson(value));
         }
+        delete expando.data[key];
       });
     });
     if (count) {
@@ -312,14 +313,35 @@ window.dump = function() {
 
 function generateInputCompilerHelper(helper) {
   beforeEach(function() {
+    helper.validationCounter = {};
+
     module(function($compileProvider) {
+      $compileProvider.directive('validationSpy', function() {
+        return {
+          priority: 1,
+          require: 'ngModel',
+          link: function(scope, element, attrs, ctrl) {
+            var validationName = attrs.validationSpy;
+
+            var originalValidator = ctrl.$validators[validationName];
+            helper.validationCounter[validationName] = 0;
+
+            ctrl.$validators[validationName] = function(modelValue, viewValue) {
+              helper.validationCounter[validationName]++;
+
+              return originalValidator(modelValue, viewValue);
+            };
+          }
+        };
+      });
+
       $compileProvider.directive('attrCapture', function() {
         return function(scope, element, $attrs) {
           helper.attrs = $attrs;
         };
       });
     });
-    inject(function($compile, $rootScope, $sniffer) {
+    inject(function($compile, $rootScope, $sniffer, $document, $rootElement) {
 
       helper.compileInput = function(inputHtml, mockValidity, scope) {
 
@@ -340,6 +362,11 @@ function generateInputCompilerHelper(helper) {
 
         // Compile the lot and return the input element
         $compile(helper.formElm)(scope);
+
+        $rootElement.append(helper.formElm);
+        // Append the app to the document so that "click" on a radio/checkbox triggers "change"
+        // Support: Chrome, Safari 8, 9
+        jqLite($document[0].body).append($rootElement);
 
         spyOn(scope.form, '$addControl').and.callThrough();
         spyOn(scope.form, '$$renameControl').and.callThrough();

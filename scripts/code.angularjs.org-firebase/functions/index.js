@@ -10,7 +10,8 @@ const BROWSER_CACHE_DURATION = 60 * 10;
 const CDN_CACHE_DURATION = 60 * 60 * 12;
 
 function sendStoredFile(request, response) {
-  let filePathSegments = request.path.split('/').filter((segment) => {
+  const requestPath = request.path || '/';
+  let filePathSegments = requestPath.split('/').filter((segment) => {
     // Remove empty leading or trailing path parts
     return segment !== '';
   });
@@ -159,7 +160,11 @@ function sendStoredFile(request, response) {
         const nextQuery = data[1];
         const apiResponse = data[2];
 
-        if (!files.length && (!apiResponse || !apiResponse.prefixes)) {
+        if (
+          // we got no files or directories from previous query pages
+          !fileList.length && !directoryList.length &&
+          // this query page has no file or directories
+          !files.length && (!apiResponse || !apiResponse.prefixes)) {
           return Promise.reject({
             code: 404
           });
@@ -190,22 +195,16 @@ const snapshotRegex = /^snapshot(-stable)?\//;
  * When a new zip file is uploaded into snapshot or snapshot-stable,
  * delete the previous zip file.
  */
-function deleteOldSnapshotZip(event) {
-  const object = event.data;
-
+function deleteOldSnapshotZip(object, context) {
   const bucketId = object.bucket;
   const filePath = object.name;
   const contentType = object.contentType;
-  const resourceState = object.resourceState;
 
   const bucket = gcs.bucket(bucketId);
 
   const snapshotFolderMatch = filePath.match(snapshotRegex);
 
-  if (!snapshotFolderMatch ||
-      contentType !== 'application/zip' ||
-      resourceState === 'not_exists' // Deletion event
-    ) {
+  if (!snapshotFolderMatch ||	contentType !== 'application/zip') {
     return;
   }
 
@@ -230,4 +229,4 @@ function deleteOldSnapshotZip(event) {
 }
 
 exports.sendStoredFile = functions.https.onRequest(sendStoredFile);
-exports.deleteOldSnapshotZip = functions.storage.object().onChange(deleteOldSnapshotZip);
+exports.deleteOldSnapshotZip = functions.storage.object().onFinalize(deleteOldSnapshotZip);

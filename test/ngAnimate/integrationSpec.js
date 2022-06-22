@@ -25,6 +25,7 @@ describe('ngAnimate integration tests', function() {
     ss.destroy();
   });
 
+
  it('should cancel a running and started removeClass animation when a follow-up addClass animation adds the same class',
     inject(function($animate, $rootScope, $$rAF, $document, $rootElement) {
 
@@ -316,6 +317,8 @@ describe('ngAnimate integration tests', function() {
     it('should issue a RAF for each element animation on all DOM levels', function() {
       module('ngAnimateMock');
       inject(function($animate, $compile, $rootScope, $rootElement, $document, $$rAF) {
+        ss.addRule('.ng-enter', 'transition:2s linear all;');
+
         element = jqLite(
           '<div ng-class="{parent:exp}">' +
             '<div ng-class="{parent2:exp}">' +
@@ -360,6 +363,7 @@ describe('ngAnimate integration tests', function() {
       });
     });
 
+
     it('should add the preparation class for an enter animation before a parent class-based animation is applied', function() {
       module('ngAnimateMock');
       inject(function($animate, $compile, $rootScope, $rootElement, $document) {
@@ -392,6 +396,155 @@ describe('ngAnimate integration tests', function() {
         expect(parent).toHaveClass('parent parent-add parent-add-active');
         expect(child).toHaveClass('ng-enter ng-enter-active');
         expect(child).not.toHaveClass('ng-enter-prepare');
+      });
+    });
+
+
+    it('should avoid adding the ng-enter-prepare method to a parent structural animation that contains child animations', function() {
+      module('ngAnimateMock');
+      inject(function($animate, $compile, $rootScope, $rootElement, $document, $$rAF) {
+        element = jqLite(
+          '<div ng-animate-children="true">' +
+            '<div ng-if="parent" class="parent">' +
+              '<div ng-if="child" class="child">' +
+                '<div ng-class="{something:true}"></div>' +
+              '</div>' +
+            '</div>' +
+          '</div>'
+        );
+
+        ss.addRule('.ng-enter', 'transition:2s linear all;');
+
+        $rootElement.append(element);
+        jqLite($document[0].body).append($rootElement);
+
+        $compile(element)($rootScope);
+        $rootScope.parent = true;
+        $rootScope.child = true;
+        $rootScope.$digest();
+
+        var parent = jqLite(element[0].querySelector('.parent'));
+        var child = jqLite(element[0].querySelector('.child'));
+
+        expect(parent).not.toHaveClass('ng-enter-prepare');
+        expect(child).toHaveClass('ng-enter-prepare');
+
+        $$rAF.flush();
+
+        expect(parent).not.toHaveClass('ng-enter-prepare');
+        expect(child).not.toHaveClass('ng-enter-prepare');
+      });
+    });
+
+    it('should add the preparation class for an enter animation before a parent class-based animation is applied', function() {
+      module('ngAnimateMock');
+      inject(function($animate, $compile, $rootScope, $rootElement, $document) {
+        element = jqLite(
+          '<div ng-class="{parent:exp}">' +
+            '<div ng-if="exp">' +
+            '</div>' +
+          '</div>'
+        );
+
+        ss.addRule('.ng-enter', 'transition:2s linear all;');
+        ss.addRule('.parent-add', 'transition:5s linear all;');
+
+        $rootElement.append(element);
+        jqLite($document[0].body).append($rootElement);
+
+        $compile(element)($rootScope);
+        $rootScope.exp = true;
+        $rootScope.$digest();
+
+        var parent = element;
+        var child = element.find('div');
+
+        expect(parent).not.toHaveClass('parent');
+        expect(parent).toHaveClass('parent-add');
+        expect(child).not.toHaveClass('ng-enter');
+        expect(child).toHaveClass('ng-enter-prepare');
+
+        $animate.flush();
+        expect(parent).toHaveClass('parent parent-add parent-add-active');
+        expect(child).toHaveClass('ng-enter ng-enter-active');
+        expect(child).not.toHaveClass('ng-enter-prepare');
+      });
+    });
+
+
+    it('should remove the prepare classes when different structural animations happen in the same digest', function() {
+      module('ngAnimateMock');
+      inject(function($animate, $compile, $rootScope, $rootElement, $document, $$animateCache) {
+        element = jqLite(
+           // Class animation on parent element is neeeded so the child elements get the prepare class
+          '<div id="outer" ng-class="{blue: cond}" ng-switch="cond">' +
+            '<div id="default" ng-switch-default></div>' +
+            '<div id="truthy" ng-switch-when="true"></div>' +
+          '</div>'
+        );
+
+        $rootElement.append(element);
+        jqLite($document[0].body).append($rootElement);
+
+        $compile(element)($rootScope);
+        $rootScope.cond = false;
+        $rootScope.$digest();
+
+        $rootScope.cond = true;
+        $rootScope.$digest();
+
+        var parent = element;
+        var truthySwitch = jqLite(parent[0].querySelector('#truthy'));
+        var defaultSwitch = jqLite(parent[0].querySelector('#default'));
+
+        expect(parent).not.toHaveClass('blue');
+        expect(parent).toHaveClass('blue-add');
+        expect(truthySwitch).toHaveClass('ng-enter-prepare');
+        expect(defaultSwitch).toHaveClass('ng-leave-prepare');
+
+        $animate.flush();
+
+        expect(parent).toHaveClass('blue');
+        expect(parent).not.toHaveClass('blue-add');
+        expect(truthySwitch).not.toHaveClass('ng-enter-prepare');
+        expect(defaultSwitch).not.toHaveClass('ng-leave-prepare');
+      });
+    });
+
+    it('should respect the element node for caching when animations with the same type happen in the same digest', function() {
+      module('ngAnimateMock');
+      inject(function($animate, $compile, $rootScope, $rootElement, $document, $$animateCache) {
+        ss.addRule('.animate.ng-enter', 'transition:2s linear all;');
+
+        element = jqLite(
+          '<div>' +
+            '<div>' +
+              '<div id="noanimate" ng-if="cond"></div>' +
+            '</div>' +
+            '<div>' +
+              '<div id="animate" class="animate" ng-if="cond"></div>' +
+            '</div>' +
+          '</div>'
+        );
+
+        $rootElement.append(element);
+        jqLite($document[0].body).append($rootElement);
+
+        $compile(element)($rootScope);
+        $rootScope.cond = true;
+        $rootScope.$digest();
+
+        var parent = element;
+        var noanimate = jqLite(parent[0].querySelector('#noanimate'));
+        var animate = jqLite(parent[0].querySelector('#animate'));
+
+        expect(noanimate).not.toHaveClass('ng-enter');
+        expect(animate).toHaveClass('ng-enter');
+
+        $animate.closeAndFlush();
+
+        expect(noanimate).not.toHaveClass('ng-enter');
+        expect(animate).not.toHaveClass('ng-enter');
       });
     });
 
@@ -542,6 +695,45 @@ describe('ngAnimate integration tests', function() {
 
         expect(child).toHaveClass('red');
         expect(child).not.toHaveClass('blue');
+      });
+    });
+
+    it('should not apply ngAnimate CSS preparation classes when a css animation definition has duration = 0', function() {
+      function fill(max) {
+        var arr = [];
+        for (var i = 0; i < max; i++) {
+          arr.push(i);
+        }
+        return arr;
+      }
+
+      inject(function($animate, $rootScope, $compile, $timeout, $$rAF, $$jqLite) {
+        ss.addRule('.animate-me', 'transition: all 0.5s;');
+
+        var classAddSpy = spyOn($$jqLite, 'addClass').and.callThrough();
+        var classRemoveSpy = spyOn($$jqLite, 'removeClass').and.callThrough();
+
+        element = jqLite(
+          '<div>' +
+            '<div ng-repeat="item in items"></div>' +
+          '</div> '
+        );
+
+        html(element);
+        $compile(element)($rootScope);
+
+        $rootScope.items = fill(100);
+        $rootScope.$digest();
+
+        expect(classAddSpy.calls.count()).toBe(2);
+        expect(classRemoveSpy.calls.count()).toBe(2);
+
+        expect(classAddSpy.calls.argsFor(0)[1]).toBe('ng-animate');
+        expect(classAddSpy.calls.argsFor(1)[1]).toBe('ng-enter');
+        expect(classRemoveSpy.calls.argsFor(0)[1]).toBe('ng-enter');
+        expect(classRemoveSpy.calls.argsFor(1)[1]).toBe('ng-animate');
+
+        expect(element.children().length).toBe(100);
       });
     });
   });

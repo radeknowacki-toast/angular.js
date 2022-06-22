@@ -12,7 +12,7 @@ set -xe
 # This is the default set of browsers to use on the CI server unless overridden via env variable
 if [[ -z "$BROWSERS" ]]
 then
-  BROWSERS="Chrome,Firefox,/Users/jenkins/bin/safari.sh"
+  BROWSERS="Chrome"
 fi
 
 # CLEAN #
@@ -21,21 +21,21 @@ rm -f angular.js.size
 
 
 # BUILD #
-yarn run grunt -- ci-checks package --no-color
+yarn grunt ci-checks package --no-color
 
 mkdir -p test_out
 
 # UNIT TESTS #
-yarn run grunt -- test:unit --browsers="$BROWSERS" --reporters=dots,junit --no-colors --no-color
+yarn grunt test:unit --browsers="$BROWSERS" --reporters=dots,junit --no-colors --no-color
 
 # END TO END TESTS #
-yarn run grunt -- test:ci-protractor
+yarn grunt test:ci-protractor
 
 # DOCS APP TESTS #
-yarn run grunt -- test:docs --browsers="$BROWSERS" --reporters=dots,junit --no-colors --no-color
+yarn grunt test:docs --browsers="$BROWSERS" --reporters=dots,junit --no-colors --no-color
 
 # Promises/A+ TESTS #
-yarn run grunt -- test:promises-aplus --no-color
+yarn grunt test:promises-aplus --no-color
 
 
 # CHECK SIZE #

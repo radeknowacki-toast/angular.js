@@ -2002,7 +2002,7 @@ describe('$http', function() {
       it('should immediately call `$browser.$$incOutstandingRequestCount()`', function() {
         expect(incOutstandingRequestCountSpy).not.toHaveBeenCalled();
         $http.get('');
-        expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnce();
+        expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnceWith('$http');
       });
 
 
@@ -2012,7 +2012,7 @@ describe('$http', function() {
         $http.get('');
         expect(completeOutstandingRequestSpy).not.toHaveBeenCalled();
         $httpBackend.flush();
-        expect(completeOutstandingRequestSpy).toHaveBeenCalledOnce();
+        expect(completeOutstandingRequestSpy).toHaveBeenCalledOnceWith(noop, '$http');
       });
 
 
@@ -2022,7 +2022,7 @@ describe('$http', function() {
         $http.get('').catch(noop);
         expect(completeOutstandingRequestSpy).not.toHaveBeenCalled();
         $httpBackend.flush();
-        expect(completeOutstandingRequestSpy).toHaveBeenCalledOnce();
+        expect(completeOutstandingRequestSpy).toHaveBeenCalledOnceWith(noop, '$http');
       });
 
 
@@ -2033,13 +2033,13 @@ describe('$http', function() {
 
           $http.get('', {transformRequest: function() { throw new Error(); }}).catch(noop);
 
-          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnce();
+          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnceWith('$http');
           expect(completeOutstandingRequestSpy).not.toHaveBeenCalled();
 
           $rootScope.$digest();
 
-          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnce();
-          expect(completeOutstandingRequestSpy).toHaveBeenCalledOnce();
+          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnceWith('$http');
+          expect(completeOutstandingRequestSpy).toHaveBeenCalledOnceWith(noop, '$http');
         }
       );
 
@@ -2052,13 +2052,13 @@ describe('$http', function() {
           $httpBackend.when('GET').respond(200);
           $http.get('', {transformResponse: function() { throw new Error(); }}).catch(noop);
 
-          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnce();
+          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnceWith('$http');
           expect(completeOutstandingRequestSpy).not.toHaveBeenCalled();
 
           $httpBackend.flush();
 
-          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnce();
-          expect(completeOutstandingRequestSpy).toHaveBeenCalledOnce();
+          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnceWith('$http');
+          expect(completeOutstandingRequestSpy).toHaveBeenCalledOnceWith(noop, '$http');
         }
       );
     });
@@ -2112,7 +2112,7 @@ describe('$http', function() {
 
           expect(reqInterceptorFulfilled).toBe(false);
           expect(resInterceptorFulfilled).toBe(false);
-          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnce();
+          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnceWith('$http');
           expect(completeOutstandingRequestSpy).not.toHaveBeenCalled();
 
           reqInterceptorDeferred.resolve();
@@ -2120,7 +2120,7 @@ describe('$http', function() {
 
           expect(reqInterceptorFulfilled).toBe(true);
           expect(resInterceptorFulfilled).toBe(false);
-          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnce();
+          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnceWith('$http');
           expect(completeOutstandingRequestSpy).not.toHaveBeenCalled();
 
           resInterceptorDeferred.resolve();
@@ -2128,8 +2128,8 @@ describe('$http', function() {
 
           expect(reqInterceptorFulfilled).toBe(true);
           expect(resInterceptorFulfilled).toBe(true);
-          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnce();
-          expect(completeOutstandingRequestSpy).toHaveBeenCalledOnce();
+          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnceWith('$http');
+          expect(completeOutstandingRequestSpy).toHaveBeenCalledOnceWith(noop, '$http');
         }
       );
 
@@ -2144,15 +2144,15 @@ describe('$http', function() {
           $rootScope.$digest();
 
           expect(reqInterceptorFulfilled).toBe(false);
-          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnce();
+          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnceWith('$http');
           expect(completeOutstandingRequestSpy).not.toHaveBeenCalled();
 
           reqInterceptorDeferred.reject();
           $rootScope.$digest();
 
           expect(reqInterceptorFulfilled).toBe(true);
-          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnce();
-          expect(completeOutstandingRequestSpy).toHaveBeenCalledOnce();
+          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnceWith('$http');
+          expect(completeOutstandingRequestSpy).toHaveBeenCalledOnceWith(noop, '$http');
         }
       );
 
@@ -2169,7 +2169,7 @@ describe('$http', function() {
 
           expect(reqInterceptorFulfilled).toBe(false);
           expect(resInterceptorFulfilled).toBe(false);
-          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnce();
+          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnceWith('$http');
           expect(completeOutstandingRequestSpy).not.toHaveBeenCalled();
 
           reqInterceptorDeferred.resolve();
@@ -2177,7 +2177,7 @@ describe('$http', function() {
 
           expect(reqInterceptorFulfilled).toBe(true);
           expect(resInterceptorFulfilled).toBe(false);
-          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnce();
+          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnceWith('$http');
           expect(completeOutstandingRequestSpy).not.toHaveBeenCalled();
 
           resInterceptorDeferred.reject();
@@ -2185,8 +2185,8 @@ describe('$http', function() {
 
           expect(reqInterceptorFulfilled).toBe(true);
           expect(resInterceptorFulfilled).toBe(true);
-          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnce();
-          expect(completeOutstandingRequestSpy).toHaveBeenCalledOnce();
+          expect(incOutstandingRequestCountSpy).toHaveBeenCalledOnceWith('$http');
+          expect(completeOutstandingRequestSpy).toHaveBeenCalledOnceWith(noop, '$http');
         }
       );
     });
@@ -2527,9 +2527,25 @@ describe('$http param serializers', function() {
       expect(decodeURIComponent(jqrSer({a: 'b', foo: ['bar', 'baz']}))).toEqual('a=b&foo[]=bar&foo[]=baz');
     });
 
+    it('should serialize arrays with functions', function() {
+      expect(jqrSer({foo: [valueFn('bar')]})).toEqual('foo%5B%5D=bar'); // foo[]=bar
+    });
+
+    it('should serialize arrays with functions inside objects', function() {
+      expect(jqrSer({foo: {bar: [valueFn('baz')]}})).toEqual('foo%5Bbar%5D%5B%5D=baz'); // foo[bar][]=baz
+    });
+
     it('should serialize objects by repeating param name with [key] suffix', function() {
       expect(jqrSer({a: 'b', foo: {'bar': 'barv', 'baz': 'bazv'}})).toEqual('a=b&foo%5Bbar%5D=barv&foo%5Bbaz%5D=bazv');
                                                                            //a=b&foo[bar]=barv&foo[baz]=bazv
+    });
+
+    it('should serialize objects with function properties', function() {
+      expect(jqrSer({a: valueFn('b')})).toEqual('a=b');
+    });
+
+    it('should serialize objects with function properties returning an object', function() {
+      expect(jqrSer({a: valueFn({b: 'c'})})).toEqual('a=%7B%22b%22:%22c%22%7D'); //a={"b":"c"}
     });
 
     it('should serialize nested objects by repeating param name with [key] suffix', function() {
@@ -2538,10 +2554,23 @@ describe('$http param serializers', function() {
          //a[]=b&a[1][c]=d&e[f]=g&e[h][]=i&e[h][]=j
     });
 
+    it('should serialize nested objects with function properties', function() {
+      expect(jqrSer({foo: {bar: valueFn('barv')}})).toEqual('foo%5Bbar%5D=barv'); //foo[bar]=barv
+    });
+
+    it('should serialize nested objects with function properties returning an object', function() {
+      expect(jqrSer({foo: {bar: valueFn({bav: 'barv'})}})).toEqual('foo%5Bbar%5D=%7B%22bav%22:%22barv%22%7D'); //foo[bar]={"bav":"barv"}
+    });
+
     it('should serialize objects inside array elements using their index', function() {
       expect(jqrSer({a: ['b', 'c'], d: [{e: 'f', g: 'h'}, 'i', {j: 'k'}]})).toEqual(
          'a%5B%5D=b&a%5B%5D=c&d%5B0%5D%5Be%5D=f&d%5B0%5D%5Bg%5D=h&d%5B%5D=i&d%5B2%5D%5Bj%5D=k');
          //a[]=b&a[]=c&d[0][e]=f&d[0][g]=h&d[]=i&d[2][j]=k
+    });
+    it('should serialize `null` and `undefined` elements as empty', function() {
+      expect(jqrSer({items:['foo', 'bar', null, undefined, 'baz'], x: null, y: undefined})).toEqual(
+         'items%5B%5D=foo&items%5B%5D=bar&items%5B%5D=&items%5B%5D=&items%5B%5D=baz&x=&y=');
+         //items[]=foo&items[]=bar&items[]=&items[]=&items[]=baz&x=&y=
     });
   });
 });
